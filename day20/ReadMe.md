@@ -1,0 +1,1 @@
+This Folder contains the notebook depicting the scenario for 2D data and as well as 3D data model for Polynomial Regression with a Degree of 2 using sci-kit laern's ibuilt library of Ploynomial_Features
