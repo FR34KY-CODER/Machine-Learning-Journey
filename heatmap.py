@@ -1,53 +1,52 @@
 import subprocess
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from datetime import datetime
+import plotly.express as px
+from datetime import datetime, timedelta
 
-# Step 1: Get Git log
+# Step 1: Get Git commit dates
 log_output = subprocess.check_output(
-    ["git", "log", "--all", "--since=60.days", "--pretty=format:%ad", "--date=short"]
+    ["git", "log", "--all", "--since=90.days", "--pretty=format:%ad", "--date=short"]
 ).decode("utf-8")
-
-# Step 2: Parse commit dates
 dates = log_output.splitlines()
-df = pd.DataFrame(dates, columns=["commit_date"])  # ✅ Rename directly
+df = pd.DataFrame(dates, columns=["date"])
+df["date"] = pd.to_datetime(df["date"])
 df["count"] = 1
-df = df.groupby("commit_date").count().reset_index()
+df = df.groupby("date").count().reset_index()
 
-# Step 3: Create full calendar DataFrame
-all_days = pd.date_range(end=datetime.now(), periods=60)
-heat_df = pd.DataFrame({"date": all_days})
-heat_df["date_str"] = heat_df["date"].dt.strftime("%Y-%m-%d")
+# Step 2: Fill in all days of range
+start_date = datetime.now() - timedelta(days=90)
+end_date = datetime.now()
+all_days = pd.date_range(start=start_date, end=end_date)
+full_df = pd.DataFrame({"date": all_days})
+full_df = full_df.merge(df, on="date", how="left").fillna(0)
+full_df["count"] = full_df["count"].astype(int)
 
-# ✅ Correct merge on renamed 'commit_date'
-heat_df = heat_df.merge(df, left_on="date_str", right_on="commit_date", how="left").fillna(0)
-heat_df["count"] = heat_df["count"].astype(int)
+# Step 3: Calendar fields
+full_df["dow"] = full_df["date"].dt.weekday  # Monday=0
+full_df["week"] = (full_df["date"] - full_df["date"].min()).dt.days // 7
 
-# Step 4: Add calendar fields
-heat_df["day_of_week"] = heat_df["date"].dt.weekday # 0=Mon, 6=Sun
-heat_df["week"] = (heat_df["date"] - heat_df["date"].min()).dt.days // 7 
-
-
-# Step 5: Pivot for heatmap
-pivot = heat_df.pivot(index="day_of_week", columns="week", values="count")
-
-# Step 6: Plot
-plt.style.use("dark_background")
-sns.set(style="white")
-fig, ax = plt.subplots(figsize=(pivot.shape[1]*0.6,4))
-sns.heatmap(
-    pivot,
-    cmap=sns.color_palette("Greens", as_cmap=True),
-    linewidths=1.2,
-    linecolor="black",
-    cbar=False,
-    square=False,
-    xticklabels=False,
-    yticklabels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+# Step 4: Plot with Plotly
+fig = px.imshow(
+    full_df.pivot(index="dow", columns="week", values="count"),
+    color_continuous_scale=["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"],
+    aspect="auto",
 )
-# plt.xticks(rotation=90, fontsize = 5)
-plt.yticks(rotation=0, fontsize = 7)
-plt.title("Git Commit Activity", fontsize=10, weight='bold')
-plt.tight_layout()
-plt.savefig("heatmap.png", dpi=300, bbox_inches='tight')
+
+# Step 5: Clean layout like GitHub
+fig.update_layout(
+    title="🟩 Repo Git Commit Heatmap (Last 90 Days)",
+    xaxis_title=None,
+    yaxis_title=None,
+    coloraxis_showscale=False,
+    margin=dict(l=20, r=20, t=40, b=20),
+    template="plotly_dark"
+)
+fig.update_xaxes(showticklabels=False)
+fig.update_yaxes(
+    tickvals=list(range(7)),
+    ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    autorange="reversed"
+)
+
+# Save as PNG
+fig.write_image("heatmap.png", width=800, height=200)
