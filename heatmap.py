@@ -37,7 +37,8 @@ pivot = heat_df.pivot(index="dow", columns="week_year", values="count")
 weeks = len(pivot.columns)
 fig_width = weeks * 0.8
 plt.figure(figsize=(fig_width, 4))
-sns.set(style="dark_background")
+plt.style.use("dark_background")
+sns.set(style="darkgrid")
 ax = sns.heatmap(
     pivot,
     cmap=sns.color_pallete("Greens", as_cmap=True),
@@ -48,7 +49,7 @@ ax = sns.heatmap(
     xticklabels=True,
     yticklabels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 )
-plt.xticks(rotation=90, fontsize = 7)
+plt.xticks(rotation=90, fontsize = 5)
 plt.yticks(rotation=0, fontsize = 7)
 plt.title("Git Commit Activity", fontsize=10, weight='bold')
 plt.tight_layout()
