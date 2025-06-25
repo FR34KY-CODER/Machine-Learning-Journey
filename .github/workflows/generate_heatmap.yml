@@ -1,0 +1,34 @@
+name: Generate Heatmap
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Runs every day at midnight UTC
+  workflow_dispatch:     # You can also trigger it manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install matplotlib pandas seaborn
+
+    - name: Generate heatmap
+      run: python heatmap.py
+
+    - name: Commit and push
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add heatmap.png
+        git commit -m "Update heatmap 🟩" || echo "No changes to commit"
+        git push

@@ -18,6 +18,11 @@ Maintain focused, consistent growth in Machine Learning by logging **daily contr
 
 ---
 
+### 🗓️ Commit Activity Heatmap
+![GitHub Commit Heatmap](./heatmap.png)
+
+---
+
 ## 🔎 Why This Exists
 
 Because:
