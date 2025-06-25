@@ -22,7 +22,7 @@ heat_df["count"] = heat_df["count"].astype(int)
 heat_df["date"] = pd.to_datetime(heat_df["date"])
 heat_df["day"] = heat_df["date"].dt.dayofweek
 heat_df["week"] = heat_df["date"].dt.isocalendar().week
-pivot = heat_df.pivot("day", "week", "count")
+pivot = heat_df.pivot(index = "day", columns = "week", values = "count")
 
 # Plot and save
 plt.figure(figsize=(12, 3))
