@@ -35,7 +35,7 @@ pivot = heat_df.pivot(index="day_of_week", columns="week", values="count")
 # Step 6: Plot
 plt.style.use("dark_background")
 sns.set(style="white")
-fig, ax = plt.subplots(fissize=(pivot.shape[1]*0.6,4))
+fig, ax = plt.subplots(figsize=(pivot.shape[1]*0.6,4))
 sns.heatmap(
     pivot,
     cmap=sns.color_palette("Greens", as_cmap=True),
@@ -43,7 +43,7 @@ sns.heatmap(
     linecolor="black",
     cbar=False,
     square=False,
-    xticklabels=Falsee,
+    xticklabels=False,
     yticklabels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 )
 # plt.xticks(rotation=90, fontsize = 5)
