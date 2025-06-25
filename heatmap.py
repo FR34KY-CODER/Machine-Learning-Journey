@@ -19,6 +19,7 @@ df = df.groupby("date").count().reset_index()
 all_days = pd.date_range(end=datetime.now(), periods=60)
 heat_df = pd.DataFrame({"date": all_days})
 heat_df["date_str"] = heat_df["date"].dt.strftime("%Y-%m-%d")
+df.rename(columns={"date": "commit_date"}, inplace = True)
 heat_df = heat_df.merge(df, left_on="date_str", right_on="date", how="left").fillna(0)
 heat_df["count"] = heat_df["count"].astype(int)
 heat_df["dow"] = heat_df["date"].dt.weekday  # 0=Mon, 6=Sun
