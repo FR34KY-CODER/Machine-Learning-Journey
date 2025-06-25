@@ -34,19 +34,22 @@ heat_df["week_year"] = heat_df["year"].astype(str) + "-W" + heat_df["week"].asty
 pivot = heat_df.pivot(index="dow", columns="week_year", values="count")
 
 # Step 6: Plot
-plt.figure(figsize=(len(pivot.columns), 4))
+weeks = len(pivot.columns)
+fig_width = weeks * 0.8
+plt.figure(figsize=(fig_width, 4))
 sns.set(style="white")
 ax = sns.heatmap(
     pivot,
     cmap="YlGn",
-    linewidths=0.5,
+    linewidths=0.3,
     linecolor="lightgray",
     cbar=False,
-    square=True,
+    square=False,
     xticklabels=True,
     yticklabels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 )
-plt.xticks(rotation=45)
-plt.title("Git Commit Activity (Last 60 Days)", fontsize=13, weight='bold')
+plt.xticks(rotation=45, fontsize = 8)
+plt.yticks(rotation=0, fontsize = 8)
+plt.title("Git Commit Activity (Last 60 Days)", fontsize=10, weight='bold')
 plt.tight_layout()
 plt.savefig("heatmap.png", dpi=300, bbox_inches='tight')
