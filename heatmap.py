@@ -26,30 +26,29 @@ heat_df["count"] = heat_df["count"].astype(int)
 
 # Step 4: Add calendar fields
 heat_df["dow"] = heat_df["date"].dt.weekday  # 0=Mon, 6=Sun
-heat_df["week"] = heat_df["date"].dt.isocalendar().week
-heat_df["year"] = heat_df["date"].dt.year
-heat_df["week_year"] = heat_df["year"].astype(str) + "-W" + heat_df["week"].astype(str)
+heat_df["week_index"] = heat_df["date"].dt.isocalendar().week
+heat_df["col"] = heat_df["week_index"] // 7
+heat_df["row"] = heat_df["dow"]
+
 
 # Step 5: Pivot for heatmap
-pivot = heat_df.pivot(index="dow", columns="week_year", values="count")
+pivot = heat_df.pivot(index="row", columns="col", values="count")
 
 # Step 6: Plot
-weeks = len(pivot.columns)
-fig_width = weeks * 0.8
-plt.figure(figsize=(fig_width, 4))
 plt.style.use("dark_background")
-sns.set(style="darkgrid")
-ax = sns.heatmap(
+sns.set(style="white")
+fig, ax = plt.subplots(fissize=(pivot.shape[1]*0.5,4))
+sns.heatmap(
     pivot,
     cmap=sns.color_palette("Greens", as_cmap=True),
-    linewidths=0.3,
+    linewidths=0.4,
     linecolor="lightgray",
     cbar=False,
     square=False,
-    xticklabels=True,
+    xticklabels=Falsee,
     yticklabels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 )
-plt.xticks(rotation=90, fontsize = 5)
+# plt.xticks(rotation=90, fontsize = 5)
 plt.yticks(rotation=0, fontsize = 7)
 plt.title("Git Commit Activity", fontsize=10, weight='bold')
 plt.tight_layout()
