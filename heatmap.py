@@ -2,6 +2,7 @@ import subprocess
 import pandas as pd
 import matplotlib.pyplot as plt
 import calmap
+import numpy as np
 from datetime import datetime, timedelta
 
 # Step 1: Get commit dates from Git (last 90 days)
