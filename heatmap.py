@@ -6,43 +6,45 @@ from datetime import datetime, timedelta
 
 # Step 1: Get Git log
 log_output = subprocess.check_output(
-    ["git", "log", "--since=60.days", "--pretty=format:%ad", "--date=short"]
+    ["git", "log", "--all", "--since=60.days", "--pretty=format:%ad", "--date=short"]
 ).decode("utf-8")
 
-# Step 2: Process commit dates
+# Step 2: Parse dates
 dates = log_output.splitlines()
 df = pd.DataFrame(dates, columns=["date"])
 df["count"] = 1
 df = df.groupby("date").count().reset_index()
 
-# Step 3: Fill in missing days with 0s
-all_days = pd.date_range(end=datetime.now(), periods=60).strftime("%Y-%m-%d")
+# Step 3: Full calendar
+all_days = pd.date_range(end=datetime.now(), periods=60)
 heat_df = pd.DataFrame({"date": all_days})
-heat_df = heat_df.merge(df, on="date", how="left").fillna(0)
+heat_df["date_str"] = heat_df["date"].dt.strftime("%Y-%m-%d")
+heat_df = heat_df.merge(df, left_on="date_str", right_on="date", how="left").fillna(0)
 heat_df["count"] = heat_df["count"].astype(int)
-heat_df["date"] = pd.to_datetime(heat_df["date"])
-heat_df["day"] = heat_df["date"].dt.dayofweek
-heat_df["week"] = heat_df["date"].dt.strftime('%U')
+heat_df["dow"] = heat_df["date"].dt.weekday  # 0=Mon, 6=Sun
+heat_df["week"] = heat_df["date"].dt.isocalendar().week
 
-# Step 4: Create pivot table
-pivot = heat_df.pivot(index="day", columns="week", values="count")
+# Fix week/year edge cases
+heat_df["year"] = heat_df["date"].dt.year
+heat_df["week_year"] = heat_df["year"].astype(str) + "-W" + heat_df["week"].astype(str)
 
-# Step 5: Plot heatmap
-plt.figure(figsize=(12, 3))
-sns.set(style="whitegrid")
+# Pivot table
+pivot = heat_df.pivot(index="dow", columns="week_year", values="count")
+
+# Step 4: Plot
+plt.figure(figsize=(len(pivot.columns), 4))
+sns.set(style="white")
 ax = sns.heatmap(
     pivot,
-    cmap="Greens",         # 🔄 match GitHub’s green style
+    cmap="YlGn",
     linewidths=0.5,
-    linecolor='lightgray',
-    square=True,
+    linecolor="lightgray",
     cbar=False,
+    square=True,
     xticklabels=True,
     yticklabels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 )
-
-# Step 6: Aesthetics
-plt.xticks(rotation=0)
-plt.title("Commit Activity Heatmap", fontsize=14, weight='bold', pad=10)
+plt.xticks(rotation=45)
+plt.title("Git Commit Activity (Last 60 Days)", fontsize=13, weight='bold')
 plt.tight_layout()
 plt.savefig("heatmap.png", dpi=300, bbox_inches='tight')
