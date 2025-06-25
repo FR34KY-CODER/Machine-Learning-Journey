@@ -19,7 +19,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-venv python3-setuptools
-          pip install pandas matplotlib calmap
+          pip install pandas matplotlib calmap numpy
 
       - name: Generate calendar heatmap
         run: python heatmap.py
