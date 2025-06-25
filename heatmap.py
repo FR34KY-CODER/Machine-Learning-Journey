@@ -25,24 +25,22 @@ heat_df = heat_df.merge(df, left_on="date_str", right_on="commit_date", how="lef
 heat_df["count"] = heat_df["count"].astype(int)
 
 # Step 4: Add calendar fields
-heat_df["dow"] = heat_df["date"].dt.weekday  # 0=Mon, 6=Sun
-heat_df["week_index"] = heat_df["date"].dt.isocalendar().week
-heat_df["col"] = heat_df["week_index"] // 7
-heat_df["row"] = heat_df["dow"]
+heat_df["day_of_week"] = heat_df["date"].dt.weekday # 0=Mon, 6=Sun
+heat_df["week"] = (heat_df["date"] - heat_df["date"].min()).dt.days // 7 
 
 
 # Step 5: Pivot for heatmap
-pivot = heat_df.pivot(index="row", columns="col", values="count")
+pivot = heat_df.pivot(index="day_of_week", columns="week", values="count")
 
 # Step 6: Plot
 plt.style.use("dark_background")
 sns.set(style="white")
-fig, ax = plt.subplots(fissize=(pivot.shape[1]*0.5,4))
+fig, ax = plt.subplots(fissize=(pivot.shape[1]*0.6,4))
 sns.heatmap(
     pivot,
     cmap=sns.color_palette("Greens", as_cmap=True),
-    linewidths=0.4,
-    linecolor="lightgray",
+    linewidths=1.2,
+    linecolor="black",
     cbar=False,
     square=False,
     xticklabels=Falsee,
