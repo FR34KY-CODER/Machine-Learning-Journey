@@ -27,10 +27,11 @@ fig, ax = calmap.calendarplot(
 
 # Force black background manually
 fig.patch.set_facecolor("black")
-
+for ax in np.ravel(axes):
+    ax.set_facecolor("black") 
 # Step 4: Add suptitle the correct way
-plt.suptitle("Repo Commit Activity (Last 90 Days)", fontsize=12, fontweight='bold')
+plt.suptitle("Repo Commit Activity (Last 90 Days)", fontsize=12, fontweight='bold', color = 'white')
 
 # Step 5: Save
 plt.tight_layout()
-plt.savefig("heatmap.png", dpi=300, bbox_inches='tight')
+plt.savefig("heatmap.png", dpi=300, bbox_inches='tight', facecolor=fig.get_facecolor())
