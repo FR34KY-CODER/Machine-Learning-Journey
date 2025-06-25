@@ -41,7 +41,7 @@ plt.style.use("dark_background")
 sns.set(style="darkgrid")
 ax = sns.heatmap(
     pivot,
-    cmap=sns.color_pallete("Greens", as_cmap=True),
+    cmap=sns.color_palette("Greens", as_cmap=True),
     linewidths=0.3,
     linecolor="lightgray",
     cbar=False,
